@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "BOLEH"
+version = "0.1.0"
+description = "Numerical framework for flavour-covariant Boltzmann equations in baryogenesis."
+readme = "README.md"
+requires-python = ">=3.8"
+
+authors = [
+    {name = "Sergio Manuel Cubides Pérez"},
+    {name = "Chee Sheng Fong"},
+]
+
+license = {text = "MIT"}    # o la licencia que finalmente elijan
+
+dependencies = [
+    "numpy",
+    "scipy",
+    "sympy",
+    "matplotlib",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
