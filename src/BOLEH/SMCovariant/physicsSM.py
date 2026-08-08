@@ -365,14 +365,14 @@ def BE_RHS(y0_total, contributions=None, params_sm=None, background_funcs=None):
     'gammaEW_sym': lambda z: orig_sm[0](z),
     'gammaQCD_sym': lambda z: orig_sm[1](z)
 })
-    map_modules = [{**dict_translate, 'besselk': kv_safe}, 'numpy']
+    map_modules = [{**dict_translate}, 'numpy']
     
     print("---Lambyfy ---")
     ode_lambda = sp.lambdify((z_sym, y_symbols), f_matrix, modules=map_modules)
     jac_lambda = sp.lambdify((z_sym, y_symbols), J_symbolic, modules=map_modules)
 
     
-    def ode_analitic(z, y): return ode_lambda(z, y).ravel()
-    def jac_analitic(z, y): return np.asarray(jac_lambda(z, y))
+    def ode_analitic(z, y): return np.asarray(ode_lambda(z, y),dtype=complex).ravel()
+    def jac_analitic(z, y): return np.asarray(jac_lambda(z, y), dtype=complex)
     print("End of Jacobian and Ode")
     return ode_analitic, jac_analitic, total_vars

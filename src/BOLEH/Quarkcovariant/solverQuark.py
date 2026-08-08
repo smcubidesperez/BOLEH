@@ -8,7 +8,7 @@ import sympy as sp
 
 from . import physicsQuark as pl
 
-def BESolverQuark(z_span, y0, ode_func, jac_func, rtol=1e-6, atol=1e-10):
+def BESolverQuark(z_span, y0, ode_func, jac_func, rtol, atol):
     z_init, z_final = z_span
     z_eval = np.logspace(np.log10(z_init), np.log10(z_final), 2000)
 

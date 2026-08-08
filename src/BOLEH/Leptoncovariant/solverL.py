@@ -8,7 +8,7 @@ import sympy as sp
 
 from . import physicsL as pl
 
-def BESolverLepto(z_span, y0, ode_func, jac_func, rtol=1e-6, atol=1e-10):
+def BESolverLepto(z_span, y0, ode_func, jac_func, rtol, atol):
     z_init, z_final = z_span
     z_eval = np.logspace(np.log10(z_init), np.log10(z_final), 2000)
 

@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import h5py  # 
 from .physicsSM import * 
+from .solverSM import * 
 
 def PlotResults(results, filename):
     z = results["z"]

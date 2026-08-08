@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import h5py
 from .physicsQuark import * 
+from .solverQuark import * 
 def PlotResultsQuark(results, filename):
     z = results["z"]
     YTDelta = results["YTDelta"]
@@ -122,8 +123,8 @@ def SolveBEQuark(z_span,
     if params_sm is None:
         params_sm = params_def.copy()
         
-    rtol = 1e-7
-    atol = 1e-12
+    rtol = 1e-6
+    atol = 1e-9
     def get_newphys_size(contributions):
 
         nvars = 0

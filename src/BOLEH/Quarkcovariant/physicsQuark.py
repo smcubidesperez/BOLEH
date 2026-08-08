@@ -265,7 +265,7 @@ def BE_RHSQuark(y0_total, contributions=None, params_sm=None, background_funcs=N
         params_sym["yD"] = yD_mock
     if callable(orig_yU):
         params_sym["yU"] = yU_mock
-    sm_funcs = ['gammaE', 'gammaU', 'gammaD', 'gammaEW', 'gammaQCD']
+    sm_funcs = ['gammaU', 'gammaD', 'gammaQCD']
     sym_masks = {name: sp.Function(f"{name}_sym") for name in sm_funcs}
     def gammaQCD_mock(z):
         return sym_masks['gammaQCD'](z)
@@ -369,7 +369,7 @@ def BE_RHSQuark(y0_total, contributions=None, params_sm=None, background_funcs=N
     'gammaD_sym': lambda z: orig_sm[1](z),
     'gammaQCD_sym': lambda z: orig_sm[2](z)
     })
-    map_modules = [{**dict_translate, 'besselk': kv_safe}, 'numpy']
+    map_modules = [{**dict_translate}, 'numpy']
 
     print("--- Lambdify ---")
     ode_lambda = sp.lambdify((z_sym, y_symbols), f_matrix, modules=map_modules)
@@ -377,5 +377,7 @@ def BE_RHSQuark(y0_total, contributions=None, params_sm=None, background_funcs=N
 
     def ode_analitic(z, y): return ode_lambda(z, y).ravel()
     def jac_analitic(z, y): return np.asarray(jac_lambda(z, y))
+
+   
     print("End of Jacobian and Ode")
     return ode_analitic, jac_analitic, total_vars
