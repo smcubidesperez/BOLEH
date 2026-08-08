@@ -5,7 +5,7 @@ from .physicsSM import params_def
 import matplotlib.pyplot as plt
 import numpy as np
 import h5py  # 
-from baryogenesis import * 
+from .physicsSM import * 
 
 def PlotResults(results, filename):
     z = results["z"]

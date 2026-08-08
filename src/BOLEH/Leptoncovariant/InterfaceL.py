@@ -8,7 +8,7 @@ from .physicsL import params_def
 import matplotlib.pyplot as plt
 import numpy as np
 import h5py
-from leptogenesis import * 
+from .physicsL import * 
 def PlotResultsLE(results, filename):
     z = results["z"]
     YTDelta = results["YTDelta"]

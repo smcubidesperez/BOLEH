@@ -8,7 +8,7 @@ from .physicsQuark import params_def
 import matplotlib.pyplot as plt
 import numpy as np
 import h5py
-from Quarkcovariant import * 
+from .physicsQuark import * 
 def PlotResultsQuark(results, filename):
     z = results["z"]
     YTDelta = results["YTDelta"]
