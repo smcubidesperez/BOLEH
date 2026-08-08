@@ -11,14 +11,13 @@ from . import physicsQuark as pl
 def BESolverQuark(z_span, y0, ode_func, jac_func, rtol, atol):
     z_init, z_final = z_span
     z_eval = np.logspace(np.log10(z_init), np.log10(z_final), 2000)
-
     start_time = time.time()
     sol = solve_ivp(
         ode_func, [z_eval[0], z_eval[-1]], y0,
-        t_eval=z_eval, method="BDF", jac=jac_func, rtol=rtol, atol=atol
+        t_eval=z_eval, method="BDF",jac=jac_func, rtol=rtol, atol=atol
     )
     z_sol = sol.t
-    print(f" Complete integration {time.time() - start_time:.4f} seconds.")
+    print(f" Complete integration numerica {time.time() - start_time:.4f} seconds.")
 
     def rebuild_matrix(v):
         return np.array([
@@ -31,7 +30,6 @@ def BESolverQuark(z_span, y0, ode_func, jac_func, rtol, atol):
     YDU = [rebuild_matrix(y[9:18]) for y in sol.y.T]
     YDD = [rebuild_matrix(y[18:27]) for y in sol.y.T]
     YN = [y[27:] for y in sol.y.T]
-
     results = {
         "z": z_sol,  
         "YTDelta": YTDelta, "YDU": YDU, "YDD": YDD, "y_newphys": YN

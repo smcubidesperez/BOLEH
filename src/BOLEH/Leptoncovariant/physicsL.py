@@ -5,7 +5,7 @@ import sympy as sp
 import numpy as np
 from scipy.special import kn
 from ..config import config
-
+from scipy.sparse import csc_matrix
 # GLOBAL CONSTANTS AND PARAMETERS
 
 gl, gH, gE = 2, 2, 1
@@ -215,7 +215,11 @@ def BE_RHSLE(y0_total, contributions=None, params_sm=None, background_funcs=None
         
     dict_translate = {}
 
-    sym_masks = {'gammaE': sp.Function("gammaE_sym")}
+    sym_masks = {
+    'gammaE': sp.Function("gammaE_sym"),
+    'cb': sp.Function("cb_sym"),
+    'ch': sp.Function("ch_sym")
+}
     def yE_mock(z):
         return sp.Matrix([
             [sp.Function("yE11_sym")(z), sp.Function("yE12_sym")(z), sp.Function("yE13_sym")(z)],
@@ -224,6 +228,11 @@ def BE_RHSLE(y0_total, contributions=None, params_sm=None, background_funcs=None
         ])
     def gammaE_mock(z):
         return sym_masks['gammaE'](z)
+    def cb_mock(z):
+        return sym_masks['cb'](z)
+    
+    def ch_mock(z):
+        return sym_masks['ch'](z)
     
     orig_np = {}
     for name in background_funcs:
@@ -237,60 +246,125 @@ def BE_RHSLE(y0_total, contributions=None, params_sm=None, background_funcs=None
                     obj(z, i) if i is not None else obj(z)
             )
     
-    global gammaE
+    global gammaE, cb, ch
+
     orig_sm = gammaE
+    orig_cb = cb
+    orig_ch = ch
+    
     gammaE = gammaE_mock
+    cb = cb_mock
+    ch = ch_mock
     if callable(params_sym["yE"]):
         params_sym["yE"] = yE_mock
     try:
         rhs_simbolic = BoltzmannLepto(z_sym, list(y_symbols), contributions, params_sym)
     finally:
         gammaE = orig_sm
+        cb = orig_cb
+        ch = orig_ch
         if orig_yE is not None:
             params_sym["yE"] = orig_yE
         for name, orig_func in orig_np.items():
             setattr(main_mod, name, orig_func)
 
+# En lugar de hacer sympify a ciegas en el 'else':
     rhs_simbolic_pure = []
     for expr in rhs_simbolic:
         if hasattr(expr, 'as_explicit'):  
             rhs_simbolic_pure.append(expr.as_explicit())
-        elif hasattr(expr, '__getitem__') and not isinstance(expr, (sp.Matrix, sp.Basic)):
+        elif isinstance(expr, (sp.Basic, sp.Matrix)):
+            rhs_simbolic_pure.append(expr)  # Si ya es SymPy, ¡no hagas nada!
+        elif hasattr(expr, '__getitem__'):
             rhs_simbolic_pure.append(expr[0])
         else:
-            rhs_simbolic_pure.append(sp.sympify(expr))
+            rhs_simbolic_pure.append(sp.sympify(expr)) # Solo si es un int/float puro de Python
+    
+    # ============================================================
+# Jacobian analítico
+# ============================================================
 
     f_matrix = sp.Matrix(rhs_simbolic_pure)
+    
     print("--- Analytical Jacobian Matrix ---")
-    jacobian_rows = []
-    for f_j in rhs_simbolic_pure:
-        row = [f_j.diff(y_i) for y_i in y_symbols]
-        jacobian_rows.append(row)
-        
-    J_symbolic = sp.Matrix(jacobian_rows)
-
+    
+    J_symbolic = f_matrix.jacobian(y_symbols)
+    
+    # --- Complexity of Jacobian entries ---
+    
+    
+    # ============================================================
+    # Traducción de funciones simbólicas -> funciones numéricas
+    # ============================================================
+    
     for name, orig_func in orig_np.items():
         dict_translate[f"{name}_sym"] = lambda z, i=None, f=orig_func: (
             f(z)[int(i)] if i is not None else f(z)
         )
+    
+    
+    # yE(z), si es una función
     if orig_yE is not None:
-
         for i in range(3):
             for j in range(3):
                 dict_translate[f"yE{i+1}{j+1}_sym"] = (
-                    lambda z, ii=i, jj=j, f=orig_yE: f(z)[ii, jj]
+                    lambda z, ii=i, jj=j, f=orig_yE:
+                    f(z)[ii, jj]
                 )
-
+    
+    
+    # Funciones mockeadas de fondo
     dict_translate.update({
-        'gammaE_sym': lambda z: orig_sm(z)
+        'gammaE_sym': lambda z: orig_sm(z),
+        'cb_sym': lambda z: orig_cb(z),
+        'ch_sym': lambda z: orig_ch(z)
     })
-    map_modules = [{**dict_translate}, 'numpy']
-
+    
+    
+    # ============================================================
+    # Modules para lambdify
+    # ============================================================
+    
+    map_modules = [
+        dict_translate,
+        'numpy'
+    ]
+    
     print("--- Lambdify ---")
-    ode_lambda = sp.lambdify((z_sym, y_symbols), f_matrix, modules=map_modules)
-    jac_lambda = sp.lambdify((z_sym, y_symbols), J_symbolic, modules=map_modules)
-
-    def ode_analitic(z, y): return np.asarray(ode_lambda(z, y),dtype=complex).ravel()
-    def jac_analitic(z, y): return np.asarray(jac_lambda(z, y), dtype=complex)
+    
+    ode_lambda = sp.lambdify(
+        (z_sym, y_symbols),
+        f_matrix,
+        modules=map_modules,
+        cse=True
+    )
+    
+    jac_lambda = sp.lambdify(
+        (z_sym, y_symbols),
+        J_symbolic,
+        modules=map_modules,
+        cse=True
+    )
+    
+    
+    # ============================================================
+    # Funciones numéricas finales
+    # ============================================================
+    
+    def ode_analitic(z, y):
+        return np.asarray(
+            ode_lambda(z, y),
+            dtype=complex
+        ).ravel()
+    
+    
+    def jac_analitic(z, y):
+        return np.asarray(
+            jac_lambda(z, y),
+            dtype=complex
+        )
+    
+    
     print("End of Jacobian and Ode")
+    
     return ode_analitic, jac_analitic, total_vars

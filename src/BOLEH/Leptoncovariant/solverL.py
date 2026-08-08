@@ -11,15 +11,14 @@ from . import physicsL as pl
 def BESolverLepto(z_span, y0, ode_func, jac_func, rtol, atol):
     z_init, z_final = z_span
     z_eval = np.logspace(np.log10(z_init), np.log10(z_final), 2000)
-
     start_time = time.time()
     sol = solve_ivp(
         ode_func, [z_eval[0], z_eval[-1]], y0,
-        t_eval=z_eval, method="BDF", jac=jac_func, rtol=rtol, atol=atol
+        t_eval=z_eval, method="BDF", jac=jac_func,
+        rtol=rtol, atol=atol
     )
     z_sol = sol.t
-    print(f" Complete integration {time.time() - start_time:.4f} seconds.")
-
+    print(f" Complete integration numerical {time.time() - start_time:.4f} seconds.")
     def rebuild_matrix(v):
         return np.array([
             [v[0],           v[3] + 1j*v[4], v[5] + 1j*v[6]],
@@ -30,7 +29,7 @@ def BESolverLepto(z_span, y0, ode_func, jac_func, rtol, atol):
     YTDelta = [rebuild_matrix(y[0:9]) for y in sol.y.T]
     YDE = [rebuild_matrix(y[9:18]) for y in sol.y.T]
     YN = [y[18:] for y in sol.y.T]
-
+    
     results = {
         "z": z_sol,  
         "YTDelta": YTDelta, "YDE": YDE, "y_newphys": YN

@@ -335,49 +335,93 @@ def BE_RHSQuark(y0_total, contributions=None, params_sm=None, background_funcs=N
             rhs_simbolic_pure.append(expr[0])
         else:
             rhs_simbolic_pure.append(sp.sympify(expr))
-
+            
     f_matrix = sp.Matrix(rhs_simbolic_pure)
+    
     print("--- Analytical Jacobian Matrix ---")
-    jacobian_rows = []
-    for f_j in rhs_simbolic_pure:
-        row = [f_j.diff(y_i) for y_i in y_symbols]
-        jacobian_rows.append(row)
-        
-    J_symbolic = sp.Matrix(jacobian_rows)
+    
+    J_symbolic = f_matrix.jacobian(y_symbols)
 
+    
+    # --- Traducción de funciones simbólicas a numéricas ---
+    
     for name, orig_func in orig_np.items():
         dict_translate[f"{name}_sym"] = lambda z, i=None, f=orig_func: (
             f(z)[int(i)] if i is not None else f(z)
         )
+    
+    
+    # --- yD(z), si es función ---
+    
     if orig_yD is not None:
-
         for i in range(3):
             for j in range(3):
                 dict_translate[f"yD{i+1}{j+1}_sym"] = (
-                    lambda z, ii=i, jj=j, f=orig_yD: f(z)[ii, jj]
+                    lambda z, ii=i, jj=j, f=orig_yD:
+                    f(z)[ii, jj]
                 )
+    
+    
+    # --- yU(z), si es función ---
+    
     if orig_yU is not None:
-
         for i in range(3):
             for j in range(3):
                 dict_translate[f"yU{i+1}{j+1}_sym"] = (
-                    lambda z, ii=i, jj=j, f=orig_yU: f(z)[ii, jj]
+                    lambda z, ii=i, jj=j, f=orig_yU:
+                    f(z)[ii, jj]
                 )
     
+    
+    # --- Funciones mockeadas ---
+    
     dict_translate.update({
-    'gammaU_sym': lambda z: orig_sm[0](z),
-    'gammaD_sym': lambda z: orig_sm[1](z),
-    'gammaQCD_sym': lambda z: orig_sm[2](z)
+        'gammaU_sym': lambda z: orig_sm[0](z),
+        'gammaD_sym': lambda z: orig_sm[1](z),
+        'gammaQCD_sym': lambda z: orig_sm[2](z)
     })
-    map_modules = [{**dict_translate}, 'numpy']
-
+    
+    
+    # --- Modules para lambdify ---
+    
+    map_modules = [
+        dict_translate,
+        'numpy'
+    ]
+    
     print("--- Lambdify ---")
-    ode_lambda = sp.lambdify((z_sym, y_symbols), f_matrix, modules=map_modules)
-    jac_lambda = sp.lambdify((z_sym, y_symbols), J_symbolic, modules=map_modules)
-
-    def ode_analitic(z, y): return ode_lambda(z, y).ravel()
-    def jac_analitic(z, y): return np.asarray(jac_lambda(z, y))
-
-   
+    
+    ode_lambda = sp.lambdify(
+        (z_sym, y_symbols),
+        f_matrix,
+        modules=map_modules,
+        cse=True
+    )
+    
+    jac_lambda = sp.lambdify(
+        (z_sym, y_symbols),
+        J_symbolic,
+        modules=map_modules,
+        cse=True
+    )
+    
+    
+    # --- Funciones numéricas finales ---
+    
+    def ode_analitic(z, y):
+        return np.asarray(
+            ode_lambda(z, y),
+            dtype=complex
+        ).ravel()
+    
+    
+    def jac_analitic(z, y):
+        return np.asarray(
+            jac_lambda(z, y),
+            dtype=complex
+        )
+    
+    
     print("End of Jacobian and Ode")
+    
     return ode_analitic, jac_analitic, total_vars

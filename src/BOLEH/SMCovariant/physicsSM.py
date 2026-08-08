@@ -337,12 +337,9 @@ def BE_RHS(y0_total, contributions=None, params_sm=None, background_funcs=None):
 
     f_matrix = sp.Matrix(rhs_simbolic_pure)
     print("--- Jacobian Analitic Matrix---")
-    jacobian_rows = []
-    for f_j in rhs_simbolic_pure:
-        row = [f_j.diff(y_i) for y_i in y_symbols]
-        jacobian_rows.append(row)
-        
-    J_symbolic = sp.Matrix(jacobian_rows)
+    J_symbolic = f_matrix.jacobian(y_symbols)
+    
+    # --- Complexity of Jacobian entries --
     
     
 
@@ -368,11 +365,32 @@ def BE_RHS(y0_total, contributions=None, params_sm=None, background_funcs=None):
     map_modules = [{**dict_translate}, 'numpy']
     
     print("---Lambyfy ---")
-    ode_lambda = sp.lambdify((z_sym, y_symbols), f_matrix, modules=map_modules)
-    jac_lambda = sp.lambdify((z_sym, y_symbols), J_symbolic, modules=map_modules)
-
+        
+    ode_lambda = sp.lambdify(
+        (z_sym, y_symbols),
+        f_matrix,
+        modules=map_modules,
+        cse=True
+    )
     
-    def ode_analitic(z, y): return np.asarray(ode_lambda(z, y),dtype=complex).ravel()
-    def jac_analitic(z, y): return np.asarray(jac_lambda(z, y), dtype=complex)
+    jac_lambda = sp.lambdify(
+        (z_sym, y_symbols),
+        J_symbolic,
+        modules=map_modules,
+        cse=True
+    )
+    
+    def ode_analitic(z, y):
+        return np.asarray(
+            ode_lambda(z, y),
+            dtype=complex
+        ).ravel()
+    
+    def jac_analitic(z, y):
+        return np.asarray(
+            jac_lambda(z, y),
+            dtype=complex
+        )
+    
     print("End of Jacobian and Ode")
     return ode_analitic, jac_analitic, total_vars

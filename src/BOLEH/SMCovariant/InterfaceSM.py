@@ -7,7 +7,7 @@ import numpy as np
 import h5py  # 
 from .physicsSM import * 
 from .solverSM import * 
-
+import time
 def PlotResults(results, filename):
     z = results["z"]
     YDL = results["YDL"]
@@ -130,11 +130,10 @@ def SolveBE(z_span,
             params_sm=None,
             background_funcs=None,
             filename=None):  
-
     if params_sm is None:
         params_sm = params_def.copy()
     rtol = 1e-7
-    atol = 1e-12
+    atol = 1e-10
     
     def get_newphys_size(contributions):
 
@@ -184,6 +183,5 @@ def SolveBE(z_span,
             
         print(f"✅ Data saved successfully to HDF5: {filename}")
     # ---------------------------------------------
-    
     PlotResults(results, filename)
     return results

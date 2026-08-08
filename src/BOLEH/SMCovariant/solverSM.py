@@ -11,13 +11,12 @@ import sympy as sp
 
 from . import physicsSM as pB
 
-def BESolver(z_span, y0, ode_func, jac_func, rtol=1e-7, atol=1e-10):
+def BESolver(z_span, y0, ode_func, jac_func, rtol, atol):
     z_init, z_final = z_span
     z_eval = np.logspace(np.log10(z_init), np.log10(z_final), 2000)
 
-
-
     start_time = time.time()
+
 
     sol = solve_ivp(
         ode_func, [z_eval[0], z_eval[-1]], y0,
@@ -25,8 +24,7 @@ def BESolver(z_span, y0, ode_func, jac_func, rtol=1e-7, atol=1e-10):
     )
     z_sol=sol.t
 
-    print(f" Complete integration {time.time() - start_time:.4f} seconds.")
-
+    print(f" Complete integration numerica {time.time() - start_time:.4f} seconds.")
 
     step = 9
     def rebuild_matrix(v):

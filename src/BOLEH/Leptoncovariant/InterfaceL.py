@@ -10,6 +10,7 @@ import numpy as np
 import h5py
 from .physicsL import * 
 from .solverL import * 
+import time
 def PlotResultsLE(results, filename):
     z = results["z"]
     YTDelta = results["YTDelta"]
@@ -112,7 +113,6 @@ def SolveBELE(z_span,
               params_sm=None,
               background_funcs=None,
               filename=None):  
-
     if params_sm is None:
         params_sm = params_def.copy()
         
@@ -156,7 +156,6 @@ def SolveBELE(z_span,
             
         print(f"✅ Data saved successfully to HDF5: {filename}")
     # ---------------------------------------------
-    
     PlotResultsLE(results, filename)
     return results
     

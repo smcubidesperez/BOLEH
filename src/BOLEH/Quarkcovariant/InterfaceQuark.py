@@ -10,6 +10,7 @@ import numpy as np
 import h5py
 from .physicsQuark import * 
 from .solverQuark import * 
+import time
 def PlotResultsQuark(results, filename):
     z = results["z"]
     YTDelta = results["YTDelta"]
@@ -119,7 +120,7 @@ def SolveBEQuark(z_span,
               params_sm=None,
               background_funcs=None,
               filename=None):  
-
+    start_time = time.time()
     if params_sm is None:
         params_sm = params_def.copy()
         
@@ -165,7 +166,6 @@ def SolveBEQuark(z_span,
             
         print(f"✅ Data saved successfully to HDF5: {filename}")
     # ---------------------------------------------
-    
     PlotResultsQuark(results, filename)
     return results
     
