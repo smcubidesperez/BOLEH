@@ -24,7 +24,7 @@ def BESolver(z_span, y0, ode_func, jac_func, rtol, atol):
     )
     z_sol=sol.t
 
-    print(f" Complete integration numerica {time.time() - start_time:.4f} seconds.")
+    print(f"Time of numerical integration = {time.time() - start_time:.4f} seconds.")
 
     step = 9
     def rebuild_matrix(v):

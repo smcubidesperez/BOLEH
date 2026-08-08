@@ -18,7 +18,7 @@ def BESolverLepto(z_span, y0, ode_func, jac_func, rtol, atol):
         rtol=rtol, atol=atol
     )
     z_sol = sol.t
-    print(f" Complete integration numerical {time.time() - start_time:.4f} seconds.")
+    print(f"Time for numerical integration = {time.time() - start_time:.4f} seconds.")
     def rebuild_matrix(v):
         return np.array([
             [v[0],           v[3] + 1j*v[4], v[5] + 1j*v[6]],

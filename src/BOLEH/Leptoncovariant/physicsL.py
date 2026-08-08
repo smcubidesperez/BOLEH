@@ -6,6 +6,7 @@ import numpy as np
 from scipy.special import kn
 from ..config import config
 from scipy.sparse import csc_matrix
+import time
 # GLOBAL CONSTANTS AND PARAMETERS
 
 gl, gH, gE = 2, 2, 1
@@ -287,7 +288,7 @@ def BE_RHSLE(y0_total, contributions=None, params_sm=None, background_funcs=None
     f_matrix = sp.Matrix(rhs_simbolic_pure)
     
     print("--- Analytical Jacobian Matrix ---")
-    
+    start_time = time.time()
     J_symbolic = f_matrix.jacobian(y_symbols)
     
     # --- Complexity of Jacobian entries ---
@@ -363,7 +364,7 @@ def BE_RHSLE(y0_total, contributions=None, params_sm=None, background_funcs=None
             jac_lambda(z, y),
             dtype=complex
         )
-    
+    print(f"Time of Jacobian calculation =  {time.time() - start_time:.4f} seconds.")
     
     print("End of Jacobian and Ode")
     

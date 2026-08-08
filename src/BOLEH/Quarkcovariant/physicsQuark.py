@@ -5,7 +5,7 @@ import sympy as sp
 import numpy as np
 from scipy.special import kn
 from ..config import config
-
+import time
 # GLOBAL CONSTANTS AND PARAMETERS
 
 gH, gQ, gU, gD =  2, 6, 3, 3
@@ -339,7 +339,7 @@ def BE_RHSQuark(y0_total, contributions=None, params_sm=None, background_funcs=N
     f_matrix = sp.Matrix(rhs_simbolic_pure)
     
     print("--- Analytical Jacobian Matrix ---")
-    
+    start_time = time.time()
     J_symbolic = f_matrix.jacobian(y_symbols)
 
     
@@ -421,7 +421,7 @@ def BE_RHSQuark(y0_total, contributions=None, params_sm=None, background_funcs=N
             dtype=complex
         )
     
-    
+    print(f"Time of Jacobian Calculation {time.time() - start_time:.4f} seconds.")
     print("End of Jacobian and Ode")
     
     return ode_analitic, jac_analitic, total_vars

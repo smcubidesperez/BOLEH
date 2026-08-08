@@ -17,7 +17,7 @@ def BESolverQuark(z_span, y0, ode_func, jac_func, rtol, atol):
         t_eval=z_eval, method="BDF",jac=jac_func, rtol=rtol, atol=atol
     )
     z_sol = sol.t
-    print(f" Complete integration numerica {time.time() - start_time:.4f} seconds.")
+    print(f"Time of numerical integration = {time.time() - start_time:.4f} seconds.")
 
     def rebuild_matrix(v):
         return np.array([

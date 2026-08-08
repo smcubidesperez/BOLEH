@@ -5,7 +5,7 @@ from ..config import config
 import sympy as sp
 import numpy as np
 from scipy.special import kn
-
+import time
 
 # GLOBAL CONSTANTS AND PARAMETERS
 
@@ -337,6 +337,7 @@ def BE_RHS(y0_total, contributions=None, params_sm=None, background_funcs=None):
 
     f_matrix = sp.Matrix(rhs_simbolic_pure)
     print("--- Jacobian Analitic Matrix---")
+    start_time = time.time()
     J_symbolic = f_matrix.jacobian(y_symbols)
     
     # --- Complexity of Jacobian entries --
@@ -391,6 +392,6 @@ def BE_RHS(y0_total, contributions=None, params_sm=None, background_funcs=None):
             jac_lambda(z, y),
             dtype=complex
         )
-    
+    print(f"Time of Jacobian calcultaion = {time.time() - start_time:.4f} seconds.")
     print("End of Jacobian and Ode")
     return ode_analitic, jac_analitic, total_vars
