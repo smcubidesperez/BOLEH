@@ -112,12 +112,16 @@ def SolveBELE(z_span,
               contributions=None,
               params_sm=None,
               background_funcs=None,
-              filename=None):  
+              filename=None,
+              rtol=None,
+              atol=None
+              ):  
     if params_sm is None:
         params_sm = params_def.copy()
-        
-    rtol = 1e-6
-    atol = 1e-9
+
+    if rtol is None: rtol = 1e-6
+    if atol is None: atol = 1e-9
+
     def get_newphys_size(contributions):
 
         nvars = 0
@@ -156,7 +160,7 @@ def SolveBELE(z_span,
             
         print(f"✅ Data saved successfully to HDF5: {filename}")
     # ---------------------------------------------
-    PlotResultsLE(results, filename)
+    #PlotResultsLE(results, filename)
     return results
     
 

@@ -13,7 +13,7 @@ from . import physicsSM as pB
 
 def BESolver(z_span, y0, ode_func, jac_func, rtol, atol):
     z_init, z_final = z_span
-    z_eval = np.logspace(np.log10(z_init), np.log10(z_final), 2000)
+    z_eval = np.logspace(np.log10(z_init), np.log10(z_final), 3000)
 
     start_time = time.time()
 

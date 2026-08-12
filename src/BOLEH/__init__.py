@@ -21,6 +21,8 @@ from .SMCovariant.physicsSM import (
     ZetaH,
     ZetaE,
 )
+from .Leptoncovariant.physicsL import (cb,ch)
+from .Quarkcovariant.physicsQuark import (cq1,cq2,ch1,ch2)
 
 __all__ = [
     "config",

@@ -129,11 +129,13 @@ def SolveBE(z_span,
             contributions=None,
             params_sm=None,
             background_funcs=None,
-            filename=None):  
+            filename=None,
+            rtol=None,
+            atol=None):  
     if params_sm is None:
         params_sm = params_def.copy()
-    rtol = 1e-7
-    atol = 1e-10
+    if rtol is None: rtol = 1e-7
+    if atol is None: atol = 1e-10
     
     def get_newphys_size(contributions):
 
@@ -183,5 +185,5 @@ def SolveBE(z_span,
             
         print(f"✅ Data saved successfully to HDF5: {filename}")
     # ---------------------------------------------
-    PlotResults(results, filename)
+    #PlotResults(results, filename)
     return results

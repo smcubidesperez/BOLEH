@@ -194,7 +194,7 @@ def BoltzmannEQ(z, y_vec, contributions=None, params_sm=None):
         "YDE": (-(gE_step * 0.5) * (yEyET @ term_YDE_scaled + term_YDE_scaled @ yEyET) - gE_step * (yEyET @ (YDH * inv_gHZH)) + gE_step * (yE @ term_YDL_scaled @ yET)),
         "YDQ": (-3.0*Cew - 2.0*CQCD - (gU_step * 0.5) * (yUTyU @ term_YDQ_scaled + term_YDQ_scaled @ yUTyU) - gU_step * (yUTyU @ (YDH * inv_gHZH)) + gU_step * (yUT @ (YDU * inv_gUzu) @ yU) - (gD_step * 0.5) * (yDTyD @ term_YDQ_scaled + term_YDQ_scaled @ yDTyD) + gD_step * (yDTyD @ (YDH * inv_gHZH)) + gD_step * (yDT @ (YDD * inv_gDZz) @ yD)),
         "YDU": (CQCD - (gU_step * 0.5) * ((yU@yUT) @ (YDU * inv_gUzu) + (YDU * inv_gUzu) @ (yU@yUT)) + gU_step * (yU @ yUT @ (YDH * inv_gHZH)) + gU_step * (yU @ term_YDQ_scaled @ yUT)),
-        "YDD": (CQCD - (gD_step * 0.5) * ((yD@yDT) @ (YDD * inv_gDZz) + (YDD * inv_gDZz) @ (yD@yDT)) - gD_step * (yD @ yDT @ (YDH * inv_gHZH)) + gD_step * (yD @ term_YDQ_scaled @ yDT))
+        "YDD": (CQCD - (gD_step * 0.5) * ((yD@yDT) @ (YDD * inv_gDZz) + (YDD * inv_gDZz) @ (yD@yDT)) -gD_step * (yD @ yDT @ (YDH * inv_gHZH)) + gD_step * (yD @ term_YDQ_scaled @ yDT))
     }
  #The new degrees of freedom and the Washout and Source terms
     if contributions:
