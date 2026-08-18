@@ -113,7 +113,9 @@ def BoltzmannEQ(z, y_vec, contributions=None, params_sm=None):
     inv_gEZE = 1.0 / (gE * ZetaE)
     inv_Ynor = 1.0 / Ynor
 
-    p = params_def if params_sm is None else params_sm
+    p = params_def.copy()
+    if params_sm is not None:
+        p.update(params_sm)
     # Detection of Symbolic and Numerical
     if isinstance(y_vec[0], sp.Symbol): #First, for the analitical jacobian
         YDL = build_hermitian_matrix_sym(y_vec[0:9])

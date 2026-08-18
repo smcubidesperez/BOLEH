@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use BOLEH, please cite it using this metadata."
+title: "BOLEH"
+type: software
+authors:
+  - family-names: "Cubides Pérez"
+    given-names: "Sergio Manuel"
+  - family-names: "Fong"
+    given-names: "Chee Sheng"
+repository-code: "https://github.com/smcubidesperez/BOLEH"
+doi: "10.5281/zenodo.21982670"
+license: "MIT"
+version: "1.0.0"

@@ -137,7 +137,9 @@ def BoltzmannQuark(z, y_vec, contributions=None, params_sm=None):
     inv_gHZH = 1.0 / (gH * ZetaH)
     inv_Ynor = 1.0 / Ynor
 
-    p = params_def if params_sm is None else params_sm
+    p = params_def.copy()
+    if params_sm is not None:
+        p.update(params_sm)
     
     if isinstance(y_vec[0], sp.Symbol): 
         YTDelta = build_hermitian_matrix_sym(y_vec[0:9])

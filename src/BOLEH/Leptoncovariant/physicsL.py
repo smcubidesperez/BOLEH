@@ -166,6 +166,8 @@ def BoltzmannLepto(z, y_vec, contributions=None, params_sm=None):
             for func in new_functions:
                 if channel == "NEW_DEGREES_OF_FREEDOM":
                     rhs_newphys.append(func(z, y_newphys, YDL, YDE, YDH, YDQ, YDU, YDD))
+                elif channel == "YTDelta":
+                    rhsLepto[channel] += -func(z, y_newphys, YDL, YDE, YDH, YDQ, YDU, YDD)
                 elif channel in rhsLepto:
                     rhsLepto[channel] += func(z, y_newphys, YDL, YDE, YDH, YDQ, YDU, YDD)
 
