@@ -21,9 +21,6 @@ def PlotResultsLE(results, filename):
     #tr_DE = np.array([np.trace(m) for m in YDE])
     YBL =results["YBL"]
     
-    #print("Final B-L Asymmetry")
-    #print(r'$Y_{B-L}=$',np.abs(YBL[-1]))
-
     plt.rcParams.update({
         "text.usetex": False,
         "font.family": "DejaVu Serif",
@@ -33,74 +30,40 @@ def PlotResultsLE(results, filename):
         "legend.fontsize": 13,
         "figure.dpi": 150,
     })
+      
+    #Determine maximum and minimum values of |Y_{B-L}| for the plot
+    ymax = 10*np.max(np.abs(YBL))
+    ymin = 1e-10*np.max(np.abs(YBL))
+    
+    title="Lepton-flavor-covariant formalism"
     
     plt.figure(figsize=(8, 5))
-    
-    
-    plt.plot(
-        z,
-        np.abs(YBL),
-        
-        label=r'$|Y_{B-L}|$',
-        color='red'
-    )
-    title="B-L Asymmetry"
-        
+    plt.plot(z, np.abs(YBL), label=r'$|Y_{B-L}|$', color='red')
     plt.xlim(z[0],z[-1])
-    plt.ylim(1e-15,1e-7)
+    plt.ylim(ymin,ymax)
     plt.xlabel(r'$z$')
+    plt.ylabel(r'$Y_{B-L}$')
     plt.title(title)
     plt.xscale('log')
     plt.yscale('log')
     plt.minorticks_on()
     plt.tick_params(which='both', top=True, right=True, direction='in')
-    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    #plt.legend()
+    
     if filename is None:
-        base_name = "lepto_plot"
+        base_name = "effL_plot"
     else:
         base_name = filename.replace('.h5', '')
         base_name = base_name.replace('at', '')       
         base_name = "_".join(base_name.split())       
-        base_name = base_name.strip('_')
+        base_name = base_name.strip('_')   
+    
+    
     file_bl = base_name + "_BL.png"
     plt.savefig(file_bl, dpi=300, bbox_inches='tight')
     plt.show()
-    print(f" Plot saved as: {file_bl}")
-
-    
-    #plt.figure(figsize=(8, 5))
-    #plt.plot(
-    #    z, np.abs(tr_TDelta),
-    #    lw=2.2, color='tab:blue', ls='-',
-    #    label=r'$\mathrm{Tr}\,Y_{\Delta L}$'
-    #)
-    
-    #plt.plot(
-    #    z, np.abs(tr_DE),
-    #    lw=2.2, color='tab:orange', ls='--',
-    #    label=r'$\mathrm{Tr}\,Y_{\Delta E}$'
-    #)
-    
-   
-    
-    
-    #title1 = "Lepton Sector"
-    #plt.xlabel('z')
-    #plt.ylabel(r'$|\rm{Tr}(Y_{\Delta i})|$')
-    #plt.xlim(z[0],z[-1])
-    #plt.ylim(1e-15,1e-7)
-    #plt.xscale('log')
-    #plt.yscale('log')
-    #plt.minorticks_on()
-    #plt.title(title1)
-    #plt.minorticks_on()
-    #plt.tick_params(which='both', top=True, right=True, direction='in')
-    #plt.legend()
-    
-    #file_ferm = base_name + "_Ferm.png"
-    #plt.savefig(file_ferm, dpi=300, bbox_inches='tight')  
-    #plt.show()
-    #print(f" Plot saved as: {file_ferm}")
 
     
     
@@ -120,11 +83,12 @@ def SolveBELE(z_span,
     if params_sm is None:
         params_sm = params_def.copy()
 
-    if rtol is None: rtol = 1e-6
-    if atol is None: atol = 1e-9
+    if rtol is None: rtol = 1e-7
+    if atol is None: atol = 1e-10
 
     if ynew0 is None:
         raise ValueError("You forgot to define your initial conditions!")
+        
     y0SM = np.zeros(18) 
     
     y0=np.concatenate((y0SM , ynew0),dtype=complex)
@@ -148,7 +112,11 @@ def SolveBELE(z_span,
             f.create_dataset('y_newphys', data=np.asarray(results["y_newphys"]))
             
         print(f"✅ Data saved successfully to HDF5: {filename}")
-    print(fr"Final $Y_B$ (effective Lepton-flavor covariant formalism): {np.abs(YBL[-1]):.4e}")
+        
+    print("--- Effective lepton-flavor-covariant formalism ---")
+    print(fr"Final Y_(B-L): {YBL[-1]:.4e}")
+    print(fr"Final Y_B: {0.315*YBL[-1]:.4e}")
+    print(fr"Final eta_B: {7.039*0.315*YBL[-1]:.4e}")
 
     if plot:
         PlotResultsLE(results, filename)

@@ -23,10 +23,6 @@ def PlotResults(results, filename):
     #tr_DQ = np.array([np.trace(m) for m in YDQ])
     #tr_DU = np.array([np.trace(m) for m in YDU])
     #tr_DD = np.array([np.trace(m) for m in YDD])
-    
-    
-    #print("Final B-L Asymmetry")
-    #print(r'$Y_{B-L}=$',np.abs(YBL[-1]))
 
     plt.rcParams.update({
         "text.usetex": False,
@@ -37,22 +33,30 @@ def PlotResults(results, filename):
         "legend.fontsize": 13,
         "figure.dpi": 150,
     })
+      
+    #Determine maximum and minimum values of |Y_{B-L}| for the plot
+    ymax = 10*np.max(np.abs(YBL))
+    ymin = 1e-10*np.max(np.abs(YBL))
+    
+    title="Complete SM flavor-covariant formalism"
     
     plt.figure(figsize=(8, 5))
     plt.plot(z, np.abs(YBL), label=r'$|Y_{B-L}|$', color='red')
-    title="B-L Asymmetry"
     plt.xlim(z[0],z[-1])
-    plt.ylim(1e-15,1e-7)
+    plt.ylim(ymin,ymax)
     plt.xlabel(r'$z$')
+    plt.ylabel(r'$Y_{B-L}$')
     plt.title(title)
     plt.xscale('log')
     plt.yscale('log')
     plt.minorticks_on()
     plt.tick_params(which='both', top=True, right=True, direction='in')
-    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    #plt.legend()
     
     if filename is None:
-        base_name = "baryo_plot"
+        base_name = "complete_plot"
     else:
         base_name = filename.replace('.h5', '')
         base_name = base_name.replace('at', '')       
@@ -63,67 +67,8 @@ def PlotResults(results, filename):
     file_bl = base_name + "_BL.png"
     plt.savefig(file_bl, dpi=300, bbox_inches='tight')
     plt.show()
-    #print(f" Plot saved as: {file_bl}")
-
-
-    #plt.rcParams['figure.figsize'] = (6, 5)
-    #plt.rcParams['figure.dpi'] = 150
     
     
-    #plt.rcParams['axes.labelsize'] = 20     
-    #plt.rcParams['xtick.labelsize'] = 19    
-    #plt.rcParams['ytick.labelsize'] = 19   
-    #plt.rcParams['legend.fontsize'] = 16
-    
-    
-    #plt.plot(
-    #    z, np.abs(tr_DL),
-    #    lw=1.5, color='blue', ls='-',
-    #    label=r'$|\mathrm{Tr}\,Y_{\Delta L}|$'
-    #)
-    
-    #plt.plot(
-    #    z, np.abs(tr_DE),
-    #    lw=1.5, color='tab:green', ls='--',
-    #    label=r'$|\mathrm{Tr}\,Y_{\Delta E}|$'
-    #)
-    
-    #plt.plot(
-    #    z, np.abs(tr_DQ),
-    #    lw=1.5, color='tab:red', ls=':',
-    #    label=r'$|\mathrm{Tr}\,Y_{\Delta Q}|$'
-    #)
-    
-    #plt.plot(
-    #    z, np.abs(tr_DU),
-    #    lw=1.5, color='tab:orange', ls='-.',
-    #    label=r'$|\mathrm{Tr}\,Y_{\Delta U}|$'
-    #)
-    
-    #plt.plot(
-    #    z, np.abs(tr_DD),
-    #    lw=1.5, color='magenta', ls=(0, (7, 3)),
-    #    label=r'$|\mathrm{Tr}\,Y_{\Delta D}|$'
-    #)
-
-    
-    #title1 = "SM Fermions"
-    #plt.xlabel('z')
-    #plt.ylabel(r'$|\rm{Tr}(Y_{\Delta i})|$')
-    #plt.xlim(z[0],z[-1])
-    #plt.ylim(1e-15,1e-7)
-    #plt.xscale('log')
-    #plt.yscale('log')
-    #plt.minorticks_on()
-    #plt.title(title1)
-    #plt.tick_params(which='both', top=True, right=True, direction='in')
-    #plt.legend()
-    #file_ferm = base_name + "_Ferm.png"
-    #plt.savefig(file_ferm, dpi=300, bbox_inches='tight') 
-    #plt.show()
-    #print(f" Plot saved as: {file_ferm}")
-    
-
 def SolveBE(z_span,
             ynew0=None, 
             contributions=None,
@@ -137,9 +82,10 @@ def SolveBE(z_span,
         params_sm = params_def.copy()
     if rtol is None: rtol = 1e-7
     if atol is None: atol = 1e-10
-    
+
     if ynew0 is None:
         raise ValueError("You forgot to define your initial conditions!")
+
     y0SM = np.zeros(45) 
     
     y0=np.concatenate((y0SM , ynew0),dtype=complex)
@@ -152,11 +98,11 @@ def SolveBE(z_span,
     results = BESolver(z_span=z_span, y0=y0, ode_func=ode, jac_func=jac, rtol=rtol, atol=atol)
     
     
-    tr_DL = np.array([np.trace(m) for m in results["YDL"]])
-    tr_DE = np.array([np.trace(m) for m in results["YDE"]])
-    tr_DQ = np.array([np.trace(m) for m in results["YDQ"]])
-    tr_DU = np.array([np.trace(m) for m in results["YDU"]])
-    tr_DD = np.array([np.trace(m) for m in results["YDD"]])
+    tr_DL = np.array([np.trace(m).real for m in results["YDL"]])
+    tr_DE = np.array([np.trace(m).real for m in results["YDE"]])
+    tr_DQ = np.array([np.trace(m).real for m in results["YDQ"]])
+    tr_DU = np.array([np.trace(m).real for m in results["YDU"]])
+    tr_DD = np.array([np.trace(m).real for m in results["YDD"]])
 
     YBL = (1/3 * (tr_DQ + tr_DU + tr_DD)) - tr_DL - tr_DE
     
@@ -176,7 +122,11 @@ def SolveBE(z_span,
             f.create_dataset('y_newphys', data=np.asarray(results["y_newphys"]))
             
         print(f"✅ Data saved successfully to HDF5: {filename}")
-    print(fr"Final $B-L$ asymmetry (Full covariant formalism): {np.abs(YBL[-1]):.4e}")
+        
+    print("--- Complete SM-flavor-covariant formalism ---")
+    print(fr"Final Y_(B-L): {YBL[-1]:.4e}")
+    print(fr"Final Y_B: {0.315*YBL[-1]:.4e}")
+    print(fr"Final eta_B: {7.039*0.315*YBL[-1]:.4e}")
 
     if plot:
         PlotResults(results, filename)

@@ -10,13 +10,17 @@ from . import physicsQuark as pl
 
 def BESolverQuark(z_span, y0, ode_func, jac_func, rtol, atol):
     z_init, z_final = z_span
-    z_eval = np.logspace(np.log10(z_init), np.log10(z_final), 2000)
+    num_z_eval = int((np.log10(z_final) - np.log10(z_init))*100)
+    z_eval = np.logspace(np.log10(z_init), np.log10(z_final), num_z_eval)
+    
     start_time = time.time()
+    
     sol = solve_ivp(
         ode_func, [z_eval[0], z_eval[-1]], y0,
         t_eval=z_eval, method="BDF",jac=jac_func, rtol=rtol, atol=atol
     )
     z_sol = sol.t
+    
     print(f"Time of numerical integration = {time.time() - start_time:.4f} seconds.")
 
     def rebuild_matrix(v):

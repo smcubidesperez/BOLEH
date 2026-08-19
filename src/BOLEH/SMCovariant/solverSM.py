@@ -13,10 +13,10 @@ from . import physicsSM as pB
 
 def BESolver(z_span, y0, ode_func, jac_func, rtol, atol):
     z_init, z_final = z_span
-    z_eval = np.logspace(np.log10(z_init), np.log10(z_final), 3000)
+    num_z_eval = int((np.log10(z_final) - np.log10(z_init))*100)
+    z_eval = np.logspace(np.log10(z_init), np.log10(z_final), num_z_eval)
 
     start_time = time.time()
-
 
     sol = solve_ivp(
         ode_func, [z_eval[0], z_eval[-1]], y0,
@@ -26,7 +26,6 @@ def BESolver(z_span, y0, ode_func, jac_func, rtol, atol):
 
     print(f"Time of numerical integration = {time.time() - start_time:.4f} seconds.")
 
-    step = 9
     def rebuild_matrix(v):
         return np.array([
             [v[0],           v[3] + 1j*v[4], v[5] + 1j*v[6]],

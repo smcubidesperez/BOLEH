@@ -23,9 +23,6 @@ def PlotResultsQuark(results, filename):
     #tr_DD = np.array([np.trace(m) for m in YDD])
     YBL =results["YBL"]
     
-    #print("Final B-L Asymmetry")
-    #print(r'$Y_{B-L}=$',np.abs(YBL[-1]))
-
     plt.rcParams.update({
         "text.usetex": False,
         "font.family": "DejaVu Serif",
@@ -35,79 +32,41 @@ def PlotResultsQuark(results, filename):
         "legend.fontsize": 13,
         "figure.dpi": 150,
     })
+      
+    #Determine maximum and minimum values of |Y_{B-L}| for the plot
+    ymax = 10*np.max(np.abs(YBL))
+    ymin = 1e-10*np.max(np.abs(YBL))
+    
+    title="Quark-flavor-covariant formalism"
     
     plt.figure(figsize=(8, 5))
-    
-    
-    plt.plot(
-        z,
-        np.abs(YBL),
-        
-        label=r'$|Y_{B-L}|$',
-        color='red'
-    )
-    title="B-L Asymmetry"
-        
+    plt.plot(z, np.abs(YBL), label=r'$|Y_{B-L}|$', color='red')
     plt.xlim(z[0],z[-1])
-    plt.ylim(1e-15,1e-7)
+    plt.ylim(ymin,ymax)
     plt.xlabel(r'$z$')
+    plt.ylabel(r'$Y_{B-L}$')
     plt.title(title)
     plt.xscale('log')
     plt.yscale('log')
     plt.minorticks_on()
     plt.tick_params(which='both', top=True, right=True, direction='in')
-    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    #plt.legend()
+    
     if filename is None:
-        base_name = "Quark_plot"
+        base_name = "effQ_plot"
     else:
         base_name = filename.replace('.h5', '')
         base_name = base_name.replace('at', '')       
         base_name = "_".join(base_name.split())       
-        base_name = base_name.strip('_')
+        base_name = base_name.strip('_')   
+    
+    
     file_bl = base_name + "_BL.png"
     plt.savefig(file_bl, dpi=300, bbox_inches='tight')
     plt.show()
-    print(f" Plot saved as: {file_bl}")
 
-    
-    #plt.figure(figsize=(8, 5))
-    #plt.plot(
-    #    z, np.abs(tr_TDelta),
-    #    lw=2.2, color='tab:blue', ls='-',
-    #    label=r'$\mathrm{Tr}\,Y_{\tilde{\Delta}}$'
-    #)
-    
-    #plt.plot(
-    #    z, np.abs(tr_DU),
-    #    lw=2.2, color='tab:orange', ls='--',
-    #    label=r'$\mathrm{Tr}\,Y_{\Delta U}$'
-    #)
-    #plt.plot(
-    #    z, np.abs(tr_DD),
-    #    lw=2.2, color='tab:green', ls='--',
-    #    label=r'$\mathrm{Tr}\,Y_{\Delta D}$'
-    #)
-    
-   
-    
-    
-    #title1 = "Quark Sector"
-    #plt.xlabel('z')
-    #plt.ylabel(r'$|\rm{Tr}(Y_{\Delta i})|$')
-    #plt.xlim(z[0],z[-1])
-    #plt.ylim(1e-15,1e-7)
-    #plt.xscale('log')
-    #plt.yscale('log')
-    #plt.minorticks_on()
-    #plt.title(title1)
-    #plt.minorticks_on()
-    #plt.tick_params(which='both', top=True, right=True, direction='in')
-    #plt.legend()
-    
-    #file_ferm = base_name + "_Ferm.png"
-    #plt.savefig(file_ferm, dpi=300, bbox_inches='tight')  
-    #plt.show()
-    #print(f" Plot saved as: {file_ferm}")
 
     
     
@@ -130,6 +89,7 @@ def SolveBEQuark(z_span,
     if atol is None: atol = 1e-9
     if ynew0 is None:
         raise ValueError("You forgot to define your initial conditions!")
+
     y0SM = np.zeros(27) 
     
     y0=np.concatenate((y0SM , ynew0),dtype=complex)
@@ -155,7 +115,11 @@ def SolveBEQuark(z_span,
             f.create_dataset('y_newphys', data=np.asarray(results["y_newphys"]))
             
         print(f"✅ Data saved successfully to HDF5: {filename}")
-    print(fr"Final $B-L$ asymmetry (Effective Quark-flavor covariant formalism): {np.abs(YBL[-1]):.4e}")
+        
+    print("--- Effective quark-flavor-covariant formalism ---")
+    print(fr"Final Y_(B-L): {YBL[-1]:.4e}")
+    print(fr"Final Y_B: {0.315*YBL[-1]:.4e}")
+    print(fr"Final eta_B: {7.039*0.315*YBL[-1]:.4e}")
 
     if plot:
         PlotResultsQuark(results, filename)
